@@ -1,4 +1,4 @@
-##PANDUAN ALUR KERJA GIT 
+## PANDUAN ALUR KERJA GIT 
 
 1. ATURAN KOLABORASI
 - Alur Satu Arah: Feature Branch -> development -> staging -> main. Jangan melakukan merge terbalik (misal dari main/staging mundur ke development).
