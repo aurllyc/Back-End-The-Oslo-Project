@@ -17,6 +17,23 @@ Sistem memiliki 4 portal yang berdiri sendiri:
 
 Meskipun memiliki halaman login yang berbeda, seluruh portal menggunakan endpoint autentikasi yang sama.
 
+## Field Request
+
+| Field    | Type   | Required | Description                |
+| -------- | ------ | -------- | -------------------------- |
+| email    | string | Ya       | Email pengguna             |
+| password | string | Ya       | Password pengguna          |
+| portal   | string | Ya       | Portal yang sedang diakses |
+
+## Available Portal
+
+| Portal    |
+| --------- |
+| mahasiswa |
+| dosen     |
+| prodi     |
+| mitra     |
+
 ---
 
 # Login
@@ -45,23 +62,6 @@ Accept: application/json
   "portal": "mahasiswa"
 }
 ```
-
-## Field Request
-
-| Field    | Type   | Required | Description                |
-| -------- | ------ | -------- | -------------------------- |
-| email    | string | Ya       | Email pengguna             |
-| password | string | Ya       | Password pengguna          |
-| portal   | string | Ya       | Portal yang sedang diakses |
-
-## Available Portal
-
-| Portal    |
-| --------- |
-| mahasiswa |
-| dosen     |
-| prodi     |
-| mitra     |
 
 ---
 
