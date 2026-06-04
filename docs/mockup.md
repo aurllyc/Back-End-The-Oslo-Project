@@ -1,218 +1,105 @@
-# docs/api-contract/auth.md
-
 # Authentication API
 
 Dokumentasi kontrak API autentikasi Sistem Informasi Magang.
 
 ---
 
-## Login
+# Overview
 
-Digunakan oleh seluruh pengguna sistem:
+Sistem memiliki 4 portal yang berdiri sendiri:
 
-* Mahasiswa
-* Dosen Pembimbing
-* Program Studi (Prodi)
-* Mitra / Perusahaan
+| Portal             | Role      |
+| ------------------ | --------- |
+| Mahasiswa          | mahasiswa |
+| Dosen Pembimbing   | dosen     |
+| Program Studi      | prodi     |
+| Mitra / Perusahaan | mitra     |
 
-### Endpoint
+Meskipun memiliki halaman login yang berbeda, seluruh portal menggunakan endpoint autentikasi yang sama.
+
+---
+
+# Login
+
+Digunakan untuk autentikasi pengguna berdasarkan portal yang diakses.
+
+## Endpoint
 
 ```http
 POST /api/v1/auth/login
 ```
 
-### Headers
+## Headers
 
 ```http
 Content-Type: application/json
+Accept: application/json
 ```
 
-### Request Body
+## Request Body
 
 ```json
 {
   "email": "user@example.com",
-  "password": "password123"
+  "password": "password123",
+  "portal": "mahasiswa"
 }
 ```
 
+## Field Request
+
+| Field    | Type   | Required | Description                |
+| -------- | ------ | -------- | -------------------------- |
+| email    | string | Ya       | Email pengguna             |
+| password | string | Ya       | Password pengguna          |
+| portal   | string | Ya       | Portal yang sedang diakses |
+
+## Available Portal
+
+| Portal    |
+| --------- |
+| mahasiswa |
+| dosen     |
+| prodi     |
+| mitra     |
+
 ---
 
-# Success Response
+## Success Response
 
-## Struktur Umum
+**HTTP Status:** `200 OK`
 
 ```json
 {
   "status": "success",
   "message": "Login berhasil",
-  "token": "string",
-  "user": {
-    "id": 0,
-    "name": "string",
-    "email": "string",
-    "roles": [],
-    "permissions": []
-  }
-}
-```
-
----
-
-## Role: Mahasiswa
-
-### Akun Simulasi
-
-```text
-Email    : mahasiswa@magang.com
-Password : password123
-```
-
-### Response
-
-**HTTP 200 OK**
-
-```json
-{
-  "status": "success",
-  "message": "Login berhasil",
-  "token": "1|token_rahasia_mahasiswa_xyz",
+  "token": "1|token_rahasia",
   "user": {
     "id": 101,
     "name": "Budi Santoso",
     "email": "mahasiswa@magang.com",
-    "nim": "20210001",
-    "roles": [
-      "mahasiswa"
-    ],
-    "permissions": [
-      "view vacancies",
-      "apply vacancy",
-      "fill logbook",
-      "view final report"
-    ]
+    "role": "mahasiswa"
   }
 }
 ```
 
----
+### Response Fields
 
-## Role: Dosen Pembimbing
-
-### Akun Simulasi
-
-```text
-Email    : dosen@magang.com
-Password : password123
-```
-
-### Response
-
-**HTTP 200 OK**
-
-```json
-{
-  "status": "success",
-  "message": "Login berhasil",
-  "token": "2|token_rahasia_dosen_xyz",
-  "user": {
-    "id": 202,
-    "name": "Dr. Irwan Kusuma, M.T.",
-    "email": "dosen@magang.com",
-    "nidn": "041234567",
-    "roles": [
-      "dosen_pembimbing"
-    ],
-    "permissions": [
-      "view students",
-      "verify logbook",
-      "grade internship"
-    ]
-  }
-}
-```
+| Field      | Type    | Description                   |
+| ---------- | ------- | ----------------------------- |
+| token      | string  | Sanctum Personal Access Token |
+| user.id    | integer | ID pengguna                   |
+| user.name  | string  | Nama pengguna                 |
+| user.email | string  | Email pengguna                |
+| user.role  | string  | Role pengguna                 |
 
 ---
 
-## Role: Program Studi (Prodi)
+## Invalid Credential
 
-### Akun Simulasi
+Email atau password tidak valid.
 
-```text
-Email    : prodi@magang.com
-Password : password123
-```
-
-### Response
-
-**HTTP 200 OK**
-
-```json
-{
-  "status": "success",
-  "message": "Login berhasil",
-  "token": "3|token_rahasia_prodi_xyz",
-  "user": {
-    "id": 303,
-    "name": "Kaprodi Teknik Informatika",
-    "email": "prodi@magang.com",
-    "roles": [
-      "prodi"
-    ],
-    "permissions": [
-      "manage vacancies",
-      "approve registration",
-      "assign supervisor",
-      "view reports"
-    ]
-  }
-}
-```
-
----
-
-## Role: Mitra / Perusahaan
-
-### Akun Simulasi
-
-```text
-Email    : mitra@magang.com
-Password : password123
-```
-
-### Response
-
-**HTTP 200 OK**
-
-```json
-{
-  "status": "success",
-  "message": "Login berhasil",
-  "token": "4|token_rahasia_mitra_xyz",
-  "user": {
-    "id": 404,
-    "name": "PT. Solusi Teknologi Indonesia",
-    "email": "mitra@magang.com",
-    "company_sector": "IT Consultant",
-    "roles": [
-      "mitra"
-    ],
-    "permissions": [
-      "create vacancy",
-      "review applicants",
-      "grade student performance"
-    ]
-  }
-}
-```
-
----
-
-# Error Response
-
-## Email atau Password Salah
-
-**HTTP 401 Unauthorized**
+**HTTP Status:** `401 Unauthorized`
 
 ```json
 {
@@ -223,38 +110,156 @@ Password : password123
 
 ---
 
-# Catatan Implementasi
+## Invalid Portal Access
 
-## Frontend
+User berhasil ditemukan tetapi mencoba login melalui portal yang tidak sesuai.
 
-Frontend wajib menyimpan:
+Contoh:
+
+* User role = dosen
+* Portal = mahasiswa
+
+**HTTP Status:** `403 Forbidden`
 
 ```json
 {
-  "token": "Bearer Token",
-  "user": {
-    "id": 0,
-    "name": "",
-    "email": "",
-    "roles": [],
-    "permissions": []
-  }
+  "status": "error",
+  "message": "Anda tidak memiliki akses ke portal ini."
 }
 ```
 
-## Routing Berdasarkan Role
+---
 
-| Role             | Redirect               |
-| ---------------- | ---------------------- |
-| mahasiswa        | `/mahasiswa/dashboard` |
-| dosen_pembimbing | `/dosen/dashboard`     |
-| prodi            | `/prodi/dashboard`     |
-| mitra            | `/mitra/dashboard`     |
+# Logout
 
-## Authorization
+Digunakan untuk mengakhiri sesi pengguna.
 
-Seluruh endpoint setelah login wajib mengirim header:
+## Endpoint
+
+```http
+POST /api/v1/auth/logout
+```
+
+## Headers
 
 ```http
 Authorization: Bearer {token}
+Accept: application/json
+```
+
+## Request Body
+
+Tidak ada.
+
+---
+
+## Success Response
+
+**HTTP Status:** `200 OK`
+
+```json
+{
+  "status": "success",
+  "message": "Logout berhasil"
+}
+```
+
+---
+
+## Unauthenticated
+
+Token tidak ditemukan atau tidak valid.
+
+**HTTP Status:** `401 Unauthorized`
+
+```json
+{
+  "status": "error",
+  "message": "Unauthenticated."
+}
+```
+
+---
+
+# Authentication Flow
+
+```text
+Portal Login
+     ↓
+POST /api/v1/auth/login
+     ↓
+Validasi Email & Password
+     ↓
+Validasi Portal & Role
+     ↓
+Generate Sanctum Token
+     ↓
+Frontend Menyimpan Token
+     ↓
+Akses Endpoint Terproteksi
+```
+
+---
+
+# Authorization Header
+
+Semua endpoint yang membutuhkan autentikasi wajib mengirimkan header berikut:
+
+```http
+Authorization: Bearer {token}
+```
+
+---
+
+# Portal Mapping
+
+| Role      | Portal               |
+| --------- | -------------------- |
+| mahasiswa | Portal Mahasiswa     |
+| dosen     | Portal Dosen         |
+| prodi     | Portal Program Studi |
+| mitra     | Portal Mitra         |
+
+---
+
+# Example Login Request
+
+## Portal Mahasiswa
+
+```json
+{
+  "email": "mahasiswa@magang.com",
+  "password": "password123",
+  "portal": "mahasiswa"
+}
+```
+
+## Portal Dosen
+
+```json
+{
+  "email": "dosen@magang.com",
+  "password": "password123",
+  "portal": "dosen"
+}
+```
+
+## Portal Prodi
+
+```json
+{
+  "email": "prodi@magang.com",
+  "password": "password123",
+  "portal": "prodi"
+}
+```
+
+## Portal Mitra
+
+```json
+{
+  "email": "mitra@magang.com",
+  "password": "password123",
+  "portal": "mitra"
+}
 ```
