@@ -2,16 +2,17 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::prefix('/v1')->group(function () {
+    //open route
+    Route::post('/login', [AuthController::class, 'login']);
 
-Route::prefix('v1')->group(function () {
-    Route::get('/hello', function () {
-        return response()->json([
-            'message' => 'Hello, World!',
-        ]);
+    //protected route
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
     });
 });
+
+
 
