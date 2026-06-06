@@ -1,0 +1,1 @@
+drop table Lowongan_Magang;

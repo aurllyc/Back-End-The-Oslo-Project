@@ -1,0 +1,1 @@
+drop table LogBook_Harian;

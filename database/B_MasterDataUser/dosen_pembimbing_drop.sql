@@ -1,0 +1,1 @@
+drop table Dosen_Pembimbing;

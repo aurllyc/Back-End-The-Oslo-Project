@@ -1,0 +1,1 @@
+drop table Penempatan_Magang;
